@@ -1,8 +1,7 @@
+import traceback
 from common.models.users import User, db, Channel, News, Comment
 from flask import Blueprint
 from flask_restful import Api, Resource, reqparse, marshal, fields
-import traceback
-from datetime import datetime, timedelta
 
 text_bp = Blueprint('users', __name__)
 api = Api(text_bp)
@@ -39,8 +38,11 @@ comment_fields = {
 }
 
 
-# 用户
 class UserOrm(Resource):
+    """
+    用户的操作（增删改）
+    """
+
     def post(self):
         parser = reqparse.RequestParser()
         lis = ['account', 'password', 'mobile', 'email']
@@ -95,14 +97,7 @@ class UserOrm(Resource):
         mobile = args.get('mobile')
         email = args.get('email')
         uid = args.get('uid')
-        # try:
         user = User.query.filter_by(uid=uid).first()
-        # except:
-        #     return [{'code': 400, 'msg': '该用户不存在'}]
-        # if user.mobile == mobile:
-        #     return [{'code': 400, 'msg': '该号码已注册过'}]
-        # if user.account == account:
-        #     return [{'code': 400, 'msg': '该账号已存在'}]
         user.is_media = int(media)
         user.mobile = mobile
         user.password = password
@@ -124,8 +119,11 @@ class UserOrm(Resource):
             return [{'code': 400, 'msg': '该用户不存在'}]
 
 
-# 新闻频道
 class ChannelOrm(Resource):
+    """
+    新闻频道的操作(增删改)
+    """
+
     def post(self):
         parser = reqparse.RequestParser()
         lis = ['cname', 'ctime', 'utime', 'sequence', 'is_visible', 'is_default']
@@ -201,8 +199,11 @@ class ChannelOrm(Resource):
             return [{'code': 400, 'msg': '该用户不存在'}]
 
 
-# 文章表
 class TitleOrm(Resource):
+    """
+    文章(的增删改)
+    """
+
     def post(self):
         parser = reqparse.RequestParser()
         lis = ['user_id', 'channel_id', 'title', 'content']
