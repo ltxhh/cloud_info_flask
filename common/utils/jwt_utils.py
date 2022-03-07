@@ -2,7 +2,7 @@
 
 
 import jwt
-from flask import current_app
+from flask import current_app, g
 from datetime import datetime, timedelta
 
 
@@ -27,28 +27,6 @@ def generate_jwt(payload, expiry, secret=None):
     return token
 
 
-# 更新token
-def _generate_token(self, user_id, refresh=True):
-    """
-    生成token
-    :param user_id:
-    :return:
-    """
-    # 获取盐
-    secret = current_app.config.get('JWT_SECRET')
-    # 定义过期时间
-    expiry = datetime.utcnow() + timedelta(hours=2)
-    # 生成Token
-    token = 'Bearer ' + generate_jwt({'user_id': user_id}, expiry, secret)
-    if refresh:
-        expiry = datetime.utcnow() + timedelta(days=15)
-        # is_refresh作为更新token的信号
-        refresh_token = 'Bearer' + generate_jwt({'user_id': user_id, 'is_refresh': True}, expiry, secret)
-    else:
-        refresh_token = None
-    return token, refresh_token
-
-
 def verify_jwt(token, secret=None):
     """
     校验jwt
@@ -64,3 +42,37 @@ def verify_jwt(token, secret=None):
     except:
         payload = None
     return payload
+
+
+# 更新token
+def _generate_token(self, account, refresh=True):
+    """
+    生成token
+    :param user_id:
+    :return:
+    """
+    # 获取盐
+    secret = current_app.config.get('JWT_SECRET')
+    # 定义过期时间
+    expiry = datetime.utcnow() + timedelta(hours=2)
+    # 生成Token
+    token = 'Bearer ' + generate_jwt({'account': account}, expiry, secret)
+    if refresh:
+        expiry = datetime.utcnow() + timedelta(days=15)
+        # is_refresh作为更新token的信号
+        refresh_token = 'Bearer' + generate_jwt({'account': account, 'is_refresh': True}, expiry, secret)
+    else:
+        refresh_token = None
+    return token, refresh_token
+
+
+def refresh_token(self):
+    """
+    刷新token
+    :return:
+    """
+    if g.account is not None and g.is_refresh is True:
+        token, refresh_token = self._generate_token(g.account)
+        return {'message': 'ok', 'data': {'token': token}}
+    else:
+        return {'message': 'Invalid refresh token'}, 403

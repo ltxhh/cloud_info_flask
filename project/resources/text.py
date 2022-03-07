@@ -1,4 +1,4 @@
-import traceback
+# import traceback
 from common.models.users import User, db, Channel, News, Comment
 from flask import Blueprint
 from flask_restful import Api, Resource, reqparse, marshal, fields

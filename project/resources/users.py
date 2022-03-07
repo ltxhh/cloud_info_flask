@@ -1,12 +1,14 @@
-from common.models.users import User, db
-from flask import Blueprint
-from flask_restful import Api, Resource, reqparse, marshal, fields
 import traceback
-from datetime import datetime, timedelta
+from common.models.users import User, db
+from common.utils.jwt_utils import generate_jwt, _generate_token
+from common.utils.login_utils import login_required
 from common.models import rds
+
+from flask import Blueprint, g
+from flask_restful import Api, Resource, reqparse, marshal, fields
+from datetime import datetime, timedelta
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkcore.request import CommonRequest
-from common.utils.jwt_utils import generate_jwt
 
 user_bp = Blueprint('users', __name__)
 api = Api(user_bp)
@@ -121,11 +123,64 @@ class Login(Resource):
             return {'code': 406, 'result': '用户名或密码错误'}
         user.last_login = datetime.now()
         db.session.commit()
-        expiry = datetime.utcnow() + timedelta(60 * 10)
-        token = generate_jwt({'account': account}, expiry)
-        return {'code': 200, 'result': {'token': token}}
+        token, refresh_token = _generate_token(self, account)
+        return {'code': 200, 'result': {'token': token, 'refresh_token': refresh_token}}
+
+
+class GetUserInfo(Resource):
+    """
+    获取用户基本信息
+    """
+
+    @login_required
+    def get(self):
+        account = g.account
+        print('account', account)
+        try:
+            user = User.query.filter_by(account=account).first()
+        except:
+            return {'code': 500, 'result': 'GetUserResource error'}
+        if user:
+            return marshal(user, user_fields)
+        return {'code': 200, 'result': 'Not find user'}
+
+
+class PutUserInfo(Resource):
+    """
+    修改用户信息
+    """
+
+    @login_required
+    def put(self):
+        parser = reqparse.RequestParser()
+        args_list = ['user_name', 'like_count', 'email', 'introduction', 'fans_count']
+        for args in args_list:
+            # 添加校验参数
+            parser.add_argument(args)
+        parser.add_argument('profile_photo', location='files')
+        args = parser.parse_args()
+        account = g.account
+        user = User.query.filter_by(account=account)
+        if not user:
+            return {'code': 500, 'result': 'Server exception!'}
+
+        data = {}
+        # 循环参数列表
+        for arg in args_list:
+            # 获取对应参数的value
+            arg_value = args.get(arg)
+            # 判断值是否为空，是否需要去更新
+            if arg_value:
+                # 将需要更新的字段生成字典
+                data.update({arg: arg_value})
+
+        user.update(data)
+        db.session.commit()
+        return marshal(user.first(), user_fields)
 
 
 api.add_resource(SMSVerificationCodeResource, '/v1_0/sms/codes')
 api.add_resource(AuthorizationResource, '/register_user', endpoint='register_user')
 api.add_resource(Login, '/login', endpoint='login')
+api.add_resource(GetUserInfo, '/get_user_info', endpoint='get_user_info')
+api.add_resource(PutUserInfo, '/put_user_info', endpoint='put_user_info')
