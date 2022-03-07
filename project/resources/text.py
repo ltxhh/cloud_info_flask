@@ -41,6 +41,9 @@ comment_fields = {
 class UserOrm(Resource):
     """
     用户的操作（增删改）
+    parser.add_argument() ：添加校验参数
+    args = parser.parse_args() ：校验
+    marshal() 返回 json 数据
     """
 
     def post(self):
@@ -122,6 +125,9 @@ class UserOrm(Resource):
 class ChannelOrm(Resource):
     """
     新闻频道的操作(增删改)
+    parser.add_argument() ：添加校验参数
+    args = parser.parse_args() ：校验
+    marshal() 返回 json 数据
     """
 
     def post(self):
@@ -202,6 +208,9 @@ class ChannelOrm(Resource):
 class TitleOrm(Resource):
     """
     文章(的增删改)
+    parser.add_argument() ：添加校验参数
+    args = parser.parse_args() ：校验
+    marshal() 返回 json 数据
     """
 
     def post(self):
