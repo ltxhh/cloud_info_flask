@@ -3,7 +3,7 @@ from common.utils.jwt_utils import verify_jwt
 
 
 def jwt_authentication():
-    g.account = None
+    g.user_id = None
     g.is_refresh = False
     # 获取请求头中的token
     token = request.headers.get('Authorization')
@@ -14,5 +14,5 @@ def jwt_authentication():
 
         if payload is not None:
             # 保存到g对象中
-            g.account = payload.get('account')
+            g.user_id = payload.get('user_id')
             g.is_refresh = payload.get('is_refresh', False)

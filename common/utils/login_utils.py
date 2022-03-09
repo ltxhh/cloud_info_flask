@@ -9,8 +9,7 @@ def login_required(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if g.account is not None:
-            print('111111',func)
+        if g.user_id is not None:
             return func(*args, **kwargs)
         return {'code': 401, 'message': 'Invalid token account is none'}
 

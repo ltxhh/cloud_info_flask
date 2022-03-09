@@ -51,15 +51,24 @@ class Ratation(db.Model):
 
 
 # 4.用户频道表
-user_channel = db.Table(
-    'user_channel',
-    db.Column('uid', db.Integer, db.ForeignKey('user_basic.uid'), primary_key=True, doc="用户ID"),
-    db.Column('cid', db.Integer, db.ForeignKey('news_channel.cid'), primary_key=True, doc="频道ID"),
-    db.Column('is_delete', db.Boolean, doc="状态(1, 可用;0, 不可用)"),
-    db.Column('create_time', db.DateTime, default=datetime.now, doc="创建时间"),
-    db.Column('update_time', db.DateTime, default=datetime.now, doc="更新时间"),
-    db.Column('sequence', db.Integer, default=0, doc='序号')
-)
+class UserChannel(db.Model):
+    __tablename__ = 'user_channel'
+    uid = db.Column(db.Integer, db.ForeignKey('user_basic.uid'), primary_key=True, doc="用户ID")
+    cid = db.Column(db.Integer, db.ForeignKey('news_channel.cid'), primary_key=True, doc="频道ID")
+    is_delete = db.Column(db.Boolean, doc="状态(1, 可用;0, 不可用)")
+    create_time = db.Column(db.DateTime, default=datetime.now, doc="创建时间")
+    update_time = db.Column(db.DateTime, default=datetime.now, doc="更新时间")
+    sequence = db.Column(db.Integer, default=0, doc='序号')
+
+
+# user_channel = db.Table(
+#     db.Column('uid', db.Integer, db.ForeignKey('user_basic.uid'), primary_key=True, doc="用户ID"),
+#     db.Column('cid', db.Integer, db.ForeignKey('news_channel.cid'), primary_key=True, doc="频道ID"),
+#     db.Column('is_delete', db.Boolean, doc="状态(1, 可用;0, 不可用)"),
+#     db.Column('create_time', db.DateTime, default=datetime.now, doc="创建时间"),
+#     db.Column('update_time', db.DateTime, default=datetime.now, doc="更新时间"),
+#     db.Column('sequence', db.Integer, default=0, doc='序号')
+# )
 
 
 # 3.频道表
@@ -76,8 +85,8 @@ class Channel(db.Model):
     sequence = db.Column(db.Integer, default=0, doc='序号')
     is_visible = db.Column(db.Boolean, default=False, doc='是否可见')
     is_default = db.Column(db.Boolean, default=False, doc='是否默认')
-    user = db.relationship('User', secondary=user_channel, backref=db.backref('channels'))
-    news = db.relationship('News', backref='channel', uselist=False)
+    user = db.relationship('User', secondary="user_channel", backref=db.backref('channels'))
+    news = db.relationship('News', backref='channel')
 
 
 # 6.用户收藏表

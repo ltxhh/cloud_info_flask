@@ -1,9 +1,8 @@
-from common.models.users import *
+from common.models.models import *
 from common.models import db
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from project.main import app
-
 
 manage = Manager(app)
 migrate = Migrate(app, db)

@@ -1,9 +1,11 @@
 # import traceback
-from common.models.users import User, db, Channel, News, Comment
-from flask import Blueprint
+from common.models.models import User, db, Channel, News, Comment
+from common.utils.login_utils import login_required
+from flask import Blueprint, g
 from flask_restful import Api, Resource, reqparse, marshal, fields
+from sqlalchemy import or_
 
-text_bp = Blueprint('users', __name__)
+text_bp = Blueprint('text', __name__)
 api = Api(text_bp)
 # 定义序列化字段
 users_fields = {
@@ -129,13 +131,14 @@ class ChannelOrm(Resource):
     args = parser.parse_args() ：校验
     marshal() 返回 json 数据
     """
-
+    @login_required
     def post(self):
         parser = reqparse.RequestParser()
         lis = ['cname', 'ctime', 'utime', 'sequence', 'is_visible', 'is_default']
         for i in lis:
             parser.add_argument(i)
         args = parser.parse_args()
+        account = g.account
         cname = args.get('cname')
         ctime = args.get('ctime')
         utime = args.get('utime')
@@ -203,6 +206,10 @@ class ChannelOrm(Resource):
             return [marshal(channel, channel_fields)]
         except:
             return [{'code': 400, 'msg': '该用户不存在'}]
+
+    def get(self):
+        info = Channel.query.all()
+        return {'code': 200, 'msg': 'ok', 'data': marshal(info, channel_fields, envelope='channel')}
 
 
 class TitleOrm(Resource):
@@ -279,8 +286,11 @@ class TitleOrm(Resource):
         except:
             return [{'code': 400, 'msg': '该文章不存在'}]
 
+    def get(self):
+        info = News.query.get()
+        return {'code': 200, 'msg': 'ok', 'data': marshal(info, title_fields, envelope='news')}
 
-# 评论表
+
 class CommentOrm(Resource):
     def post(self):
         parser = reqparse.RequestParser()
@@ -344,8 +354,31 @@ class CommentOrm(Resource):
         except:
             return [{'code': 400, 'msg': '该评论不存在'}]
 
+    def get(self):
+        info = Comment.query.get()
+        return {'code': 200, 'msg': 'ok', 'data': marshal(info, comment_fields, envelope='comment')}
+
+
+class FuzzyEnquiry(Resource):
+    """
+    模糊查询（用户）
+    """
+
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('keys', location='form')
+        args = parser.parse_args()
+        keys = args.get('keys')
+        print(keys)
+        info = User.query.filter(or_(
+            User.account.like("%{keys}%".format(keys=keys)),
+            User.mobile.like('%{keys}%'.format(keys=keys))
+        )).all()
+        return {'msg': 'ok', 'code': 200, 'data': marshal(info, users_fields, envelope='channel')}
+
 
 api.add_resource(UserOrm, '/users')
 api.add_resource(ChannelOrm, '/channel')
 api.add_resource(TitleOrm, '/news')
 api.add_resource(CommentOrm, '/comment')
+api.add_resource(FuzzyEnquiry, '/get_info')

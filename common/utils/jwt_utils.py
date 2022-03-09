@@ -9,9 +9,9 @@ from datetime import datetime, timedelta
 def generate_jwt(payload, expiry, secret=None):
     """"
     生成jwt
-    :param payload: dict 载荷
-    :param expiry: datetime 有效期
-    :param secret: 盐
+     payload: dict 载荷
+     expiry: datetime 有效期
+     secret: 盐
     :return: token
     """
     _payload = {
@@ -45,7 +45,7 @@ def verify_jwt(token, secret=None):
 
 
 # 更新token
-def _generate_token(self, account, refresh=True):
+def _generate_token( user_id, refresh=True):
     """
     生成token
     :param user_id:
@@ -56,23 +56,23 @@ def _generate_token(self, account, refresh=True):
     # 定义过期时间
     expiry = datetime.utcnow() + timedelta(hours=2)
     # 生成Token
-    token = 'Bearer ' + generate_jwt({'account': account}, expiry, secret)
+    token = 'Bearer ' + generate_jwt({'user_id': user_id}, expiry, secret)
     if refresh:
         expiry = datetime.utcnow() + timedelta(days=15)
         # is_refresh作为更新token的信号
-        refresh_token = 'Bearer' + generate_jwt({'account': account, 'is_refresh': True}, expiry, secret)
+        refresh_token = 'Bearer ' + generate_jwt({'user_id': user_id, 'is_refresh': True}, expiry, secret)
     else:
         refresh_token = None
     return token, refresh_token
 
 
-def refresh_token(self):
+def refresh_token():
     """
     刷新token
     :return:
     """
-    if g.account is not None and g.is_refresh is True:
-        token, refresh_token = self._generate_token(g.account)
+    if g.user_id is not None and g.is_refresh is True:
+        token, refresh_token = _generate_token(g.user_id, refresh=False)
         return {'message': 'ok', 'data': {'token': token}}
     else:
-        return {'message': 'Invalid refresh token'}, 403
+        return {'message': 'Invalid refresh token', 'code': 403}

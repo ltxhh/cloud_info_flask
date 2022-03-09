@@ -1,6 +1,6 @@
 import traceback
-from common.models.users import User, db
-from common.utils.jwt_utils import generate_jwt, _generate_token
+from common.models.models import User, db
+from common.utils.jwt_utils import generate_jwt, _generate_token, refresh_token
 from common.utils.login_utils import login_required
 from common.models import rds
 
@@ -75,8 +75,9 @@ class AuthorizationResource(Resource):
         # 验证码
         code = args.get('code')
         # 验证手机号是否已使用
-        number = User.query.filter_by(mobile=mobile).count()
-        if number >= 1:
+        number = User.query.filter(User.mobile == mobile).first()
+        print('11323421', number)
+        if number is not None:
             return {'code': 405, 'result': '该手机已绑定用户，请更换手机号'}
         # 验证用户是否已经注册
         user_num = User.query.filter_by(account=account).count()
@@ -123,8 +124,14 @@ class Login(Resource):
             return {'code': 406, 'result': '用户名或密码错误'}
         user.last_login = datetime.now()
         db.session.commit()
-        token, refresh_token = _generate_token(self, account)
+        user_id = user.uid
+        token, refresh_token = _generate_token(user_id)
         return {'code': 200, 'result': {'token': token, 'refresh_token': refresh_token}}
+
+
+class RefreshToken(Resource):
+    def put(self):
+        return refresh_token()
 
 
 class GetUserInfo(Resource):
@@ -134,10 +141,9 @@ class GetUserInfo(Resource):
 
     @login_required
     def get(self):
-        account = g.account
-        print('account', account)
+        user_id = g.user_id
         try:
-            user = User.query.filter_by(account=account).first()
+            user = User.query.filter_by(uid=user_id).first()
         except:
             return {'code': 500, 'result': 'GetUserResource error'}
         if user:
@@ -159,8 +165,8 @@ class PutUserInfo(Resource):
             parser.add_argument(args)
         parser.add_argument('profile_photo', location='files')
         args = parser.parse_args()
-        account = g.account
-        user = User.query.filter_by(account=account)
+        user_id = g.user_id
+        user = User.query.filter_by(uid=user_id)
         if not user:
             return {'code': 500, 'result': 'Server exception!'}
 
@@ -184,3 +190,4 @@ api.add_resource(AuthorizationResource, '/register_user', endpoint='register_use
 api.add_resource(Login, '/login', endpoint='login')
 api.add_resource(GetUserInfo, '/get_user_info', endpoint='get_user_info')
 api.add_resource(PutUserInfo, '/put_user_info', endpoint='put_user_info')
+api.add_resource(RefreshToken, '/refresh_token', endpoint='refresh_token')
