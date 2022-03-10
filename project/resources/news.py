@@ -1,3 +1,6 @@
+# coding: =utf-8
+
+
 import logging
 from common.models.models import News, db, User, Channel
 from flask import Blueprint, g
@@ -102,6 +105,7 @@ class GetNewChannel(Resource):
             channel = Channel.query.get(channel_id)
             print(channel)
             news_list = channel.news
+            # news_list.reverse()
             if len(news_list) >= 20:
                 new_list = news_list[19::-1]
                 return {"code": 200, "new_list": marshal(new_list, news_fields)}

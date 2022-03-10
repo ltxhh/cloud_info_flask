@@ -90,14 +90,22 @@ class Channel(db.Model):
 
 
 # 6.用户收藏表
-collection = db.Table(
-    'collection',
-    db.Column('user_id', db.Integer, db.ForeignKey('user_basic.uid'), primary_key=True, doc="用户ID"),
-    db.Column('news_id', db.Integer, db.ForeignKey('news_basic.nid'), primary_key=True, doc="资讯ID"),
-    db.Column('is_delete', db.Boolean, doc='状态(1,关注;0, 取消)'),
-    db.Column('create_time', db.DateTime, default=datetime.now, doc='创建时间'),
-    db.Column('update_time', db.DateTime, default=datetime.now, onupdate=datetime.now, doc='更新时间')
-)
+class Collection(db.Model):
+    __tablename__ = 'collection'
+    user_id = db.Column(db.Integer, db.ForeignKey('user_basic.uid'), primary_key=True, doc="用户ID")
+    news_id = db.Column(db.Integer, db.ForeignKey('news_basic.nid'), primary_key=True, doc="资讯ID")
+    is_delete = db.Column(db.Boolean, doc='状态(1,关注;0, 取消)')
+    create_time = db.Column(db.DateTime, default=datetime.now, doc='创建时间')
+    update_time = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now, doc='更新时间')
+
+# collection = db.Table(
+#     'collection',
+#     db.Column('user_id', db.Integer, db.ForeignKey('user_basic.uid'), primary_key=True, doc="用户ID"),
+#     db.Column('news_id', db.Integer, db.ForeignKey('news_basic.nid'), primary_key=True, doc="资讯ID"),
+#     db.Column('is_delete', db.Boolean, doc='状态(1,关注;0, 取消)'),
+#     db.Column('create_time', db.DateTime, default=datetime.now, doc='创建时间'),
+#     db.Column('update_time', db.DateTime, default=datetime.now, onupdate=datetime.now, doc='更新时间')
+# )
 
 
 # 5.资讯表
@@ -136,7 +144,7 @@ class News(db.Model):
     content = db.Column(db.Text, doc='帖文内容')
 
     comment = db.relationship('Comment', backref=db.backref('article'))
-    user = db.relationship('User', secondary=collection, backref=db.backref('user'))
+    user = db.relationship('User', secondary="Collection", backref=db.backref('user'))
 
 
 # 7.评论表
