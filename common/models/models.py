@@ -144,7 +144,7 @@ class News(db.Model):
     content = db.Column(db.Text, doc='帖文内容')
 
     comment = db.relationship('Comment', backref=db.backref('article'))
-    user = db.relationship('User', secondary="Collection", backref=db.backref('user'))
+    user = db.relationship('User', secondary="collection", backref=db.backref('collection'))
 
 
 # 7.评论表

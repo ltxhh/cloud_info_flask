@@ -1,5 +1,5 @@
 import demjson
-from common.models.models import Channel, db, User, UserChannel
+from common.models.models import Channel, db, User
 from flask import Blueprint, g
 from flask_restful import Api, Resource, reqparse, marshal, fields
 from common.utils.login_utils import login_required

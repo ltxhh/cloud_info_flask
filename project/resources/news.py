@@ -2,7 +2,8 @@
 
 
 import logging
-from common.models.models import News, db, User, Channel
+import traceback
+from common.models.models import News, db, User, Channel, Comment
 from flask import Blueprint, g
 from flask_restful import Api, Resource, reqparse, marshal, fields
 from common.utils.login_utils import login_required
@@ -16,7 +17,8 @@ news_fields = {
     'user_id': fields.Integer,
     'channel_id': fields.Integer,
     'title': fields.String,
-    'content': fields.String
+    'content': fields.String,
+    'good_count': fields.Integer,
 }
 
 
@@ -128,7 +130,91 @@ class Consult(Resource):
         return {'code': 200, 'news': marshal(news, news_fields, envelope='data')}
 
 
+class UserGiveTheThumbsUp(Resource):
+    """
+    文章点赞
+    """
+
+    @login_required
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('nid')
+        args = parser.parse_args()
+        nid = args.get('nid')
+        new = News.query.get(nid)
+        if new:
+            new.good_count += 1
+            db.session.commit()
+            return {'code': 200, 'news': marshal(new, news_fields, envelope='data')}
+        return {'code': 200, 'msg': 'parameter error'}
+
+
+comment_fields = {
+    'cmid': fields.Integer,
+    'user_id': fields.Integer,
+    'article_id': fields.Integer,
+    'content': fields.String,
+    'parent_id': fields.Integer
+}
+
+
+class CommentCRUD(Resource):
+    """
+    文章评论的 CRUD
+    """
+
+    @login_required
+    def post(self):
+        parser = reqparse.RequestParser()
+        lis = ['article_id', 'content']
+        for arg in lis:
+            parser.add_argument(arg)
+        parser.add_argument('parent_id')
+        args = parser.parse_args()
+        data = {'user_id': g.user_id}
+        try:
+            for k in args:
+                value = args.get(k)
+                if value:
+                    data.update({k: value})
+            if args.get('parent_id') and \
+                    Comment.query.filter_by(parent_id=args.get('parent_id')).all():
+                data.update({'parent_id': args.get('parent_id')})
+
+            comment = Comment(**data)
+            db.session.add(comment)
+            db.session.commit()
+            return {'code': 200, 'comment': marshal(comment, comment_fields, envelope='data')}
+        except:
+            error = traceback.format_exc()
+            logging.debug('debuge {}'.format(error))
+            return {'code': 500, 'msg': 'error'}
+
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('article_id', location='form')
+        args = parser.parse_args()
+        article_id = args.get('article_id')
+        try:
+            comment = Comment.query.filter_by(article_id=article_id).all()
+            return {'code': 200, 'comment': marshal(comment, comment_fields, envelope='data')}
+        except:
+            error = traceback.format_exc()
+            logging.debug('debuge {}'.format(error))
+            return {'code': 500, 'msg': 'error'}
+
+    @login_required
+    def delete(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('article_id')
+        args = parser.parse_args()
+        article_id = args.get('article_id')
+        user_id = g.user_id
+
+
 api.add_resource(NewsOrm, '/news_orm')
 api.add_resource(GetUserLike, '/get_user_like')
 api.add_resource(GetNewChannel, '/get_user_channel')
 api.add_resource(Consult, '/get_consult')
+api.add_resource(UserGiveTheThumbsUp, '/user_like_count')
+api.add_resource(CommentCRUD, '/commentCRUD')

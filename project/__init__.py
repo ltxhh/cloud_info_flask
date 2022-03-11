@@ -6,7 +6,7 @@ from project.resources.users import user_bp
 from project.resources.channel import text_bp
 from project.resources.userChannels import channels_bp
 from project.resources.news import news_bp
-from project.resources.collect import collect_bp
+from project.resources.collects import collect_bp
 from logs.logs import setup_log
 import redis
 from common.utils.middlewares import jwt_authentication
