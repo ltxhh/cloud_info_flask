@@ -1,39 +1,111 @@
-Flask	1.1.2
-Flask-Cors	3.0.10
-Flask-Migrate	2.7.0
-Flask-RESTful	0.3.9
-Flask-SQLAlchemy	2.5.1
-Flask-Script	2.0.6
-Jinja2	3.0.3
-Mako	1.1.6
-MarkupSafe	2.1.0
-PyMySQL	1.0.2
-Pygments	2.11.2
-SQLAlchemy	1.3.23
-Werkzeug	2.0.3
-alembic	1.7.6
-aniso8601	9.0.1
-click	8.0.4
-decorator	5.1.1
-importlib-metadata	4.11.1
-importlib-resources	5.4.0
-ipdb	0.13.9
-ipython	7.32.0
-itsdangerous	1.1.0
-jedi	0.18.1
-matplotlib-inline	0.1.3
-mysql	0.0.3
-mysqlclient	2.1.0
-parso	0.8.3
-pickleshare	0.7.5
-pip	22.0.3
-prompt-toolkit	3.0.28
-pytz	2021.3	2
-setuptools	57.0.0
-six	1.16.0
-toml	0.10.2
-traitlets	5.1.1
-typing-extensions	4.1.1
-wcwidth	0.2.5
-wheel	0.36.2
-zipp	3.7.0
+Flask==1.1.2
+Flask-Cors==3.0.10
+Flask-Migrate==2.7.0
+Flask-RESTful==0.3.9
+Flask-SQLAlchemy==2.5.1
+Flask-Script==2.0.6
+Jinja2==3.0.3
+Mako==1.1.6
+MarkupSafe==2.1.0
+PyMySQL==1.0.2
+Pygments==2.11.2
+SQLAlchemy==1.3.23
+Werkzeug==2.0.3
+alembic==1.7.6
+aniso8601==9.0.1
+click==8.0.4
+decorator==5.1.1
+importlib-metadata==4.11.1
+importlib-resources==5.4.0
+ipdb==0.13.9
+ipython==7.32.0
+itsdangerous==1.1.0
+jedi==0.18.1
+matplotlib-inline==0.1.3
+mysql==0.0.3
+mysqlclient==2.1.0
+parso==0.8.3
+pickleshare==0.7.5
+pip==22.0.3
+prompt-toolkit==3.0.28
+pytz==2021.3
+setuptools==57.0.0
+six==1.16.0
+toml==0.10.2
+traitlets==5.1.1
+typing-extensions==4.1.1
+wcwidth==0.2.5
+wheel==0.36.2
+zipp==3.7.0
+
+
+
+
+# django
+Deprecated 1.2.13
+Django 2.2.2
+Flask 1.1.2
+Flask-Migrate 2.7.0
+Flask-RESTful 0.3.9
+Flask-SQLAlchemy 2.5.1
+Flask-Script 2.0.6
+Jinja2 3.0.3
+Mako 1.1.6
+MarkupSafe 2.1.0
+Pillow 8.4.0
+PyJWT 1.7.1
+PyMySQL 1.0.2
+SQLAlchemy 1.3.23
+Werkzeug 2.0.3
+alembic 1.7.6
+aliyun-python-sdk-cdn 3.7.1
+aliyun-python-sdk-core 2.13.36
+aliyun-python-sdk-core-v3 2.13.33
+amqp 2.6.1
+aniso8601 9.0.1
+billiard 3.6.4.0
+captcha 0.3
+celery 4.4.7
+certifi 2021.10.8
+cffi 1.14.6
+charset-normalizer 2.0.9
+click 8.0.4
+colorama 0.4.4
+cryptography 35.0.0
+django-cors-headers 3.10.0
+django-filter 21.1
+django-redis 5.0.0
+djangorestframework 3.12.4
+djangorestframework-jwt 1.11.0
+dnspython 1.16.0
+eventlet 0.26.1
+gevent 21.8.0
+greenlet 1.1.2
+idna 3.3
+importlib-metadata 4.11.1
+importlib-resources 5.4.0
+itsdangerous 1.1.0
+jmespath 0.10.0
+jwt 1.3.1
+kombu 4.6.11
+monotonic 1.6
+mysql 0.0.3
+mysqlclient 2.1.0
+pip 22.0.4
+pycparser 2.20
+pytz 2021.3
+qiniu 7.5.0
+redis 4.0.2
+requests 2.26.0
+ronglian-sms-sdk 1.0.0
+setuptools 39.0.1
+six 1.16.0
+sqlparse 0.4.2
+typing-extensions 4.1.1
+urllib3 1.26.7
+vine 1.3.0
+wrapt 1.13.3
+you-get 0.4.1555
+zipp 3.7.0
+zope.event 4.5.0
+zope.interface 5.4.0
