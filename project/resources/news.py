@@ -228,114 +228,7 @@ class CommentCRUD(Resource):
         user_id = g.user_id
 
 
-class AdminStart(Resource):
-    """
-    超级管理员
-    """
 
-    def post(self):
-        parser = reqparse.RequestParser()
-        lis = ['account', 'mobile', 'password']
-        for i in lis:
-            parser.add_argument(i)
-        parser.add_argument('Administrator', type=int)
-        args = parser.parse_args()
-        for k in args:
-            lens = len(args.get(k))
-            if lens == 0:
-                data = f"{k} is None".format(k=k)
-                return {'code': 200, 'msg': data}
-        if args.get('Administrator') != 1 or args.get('Administrator') != 0:
-            return {'code': 200, 'msg': 'error! Administrator must 1 or 0'}
-        if User.query.filter_by(mobile=args.get('mobile')).all():
-            return {'code': 200, 'msg': 'The mobile number is registered'}
-        if User.query.filter_by(account=args.get('account')).all():
-            return {'code': 200, 'msg': 'The account has been registered'}
-        user = User()
-        user.account = args.get('account')
-        user.password = args.get('password')
-        user.mobile = args.get('mobile')
-        user.Administrator = args.get('Administrator')
-        db.session.add(user)
-        db.session.commit()
-        return {'code': 200, 'data': 'successfully added '}
-
-    @login_required
-    def put(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('Administrator', type=int)
-        args = parser.parse_args()
-        uid = g.user_id
-
-        if args.get('Administrator') != 1 or args.get('Administrator') != 0:
-            return {'code': 200, 'msg': 'error! Administrator must 1 or 0'}
-        user = User.query.get(uid)
-        if user:
-            user.Administrator = args.get('Administrator')
-            db.session.add(user)
-            db.session.commit()
-            return {'code': 200, 'msg': 'Description The super administrator is successfully added'}
-
-
-class AdminUserCRUD(Resource):
-    @login_required
-    def put(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('nid', type=int)
-        args = parser.parse_args()
-        nid = args.get('nid')
-        uid = g.user_id
-        user = User.query.get(uid)
-        news = News.query.get(nid)
-        if (user and user.Administrator == 1) or news.user_id == uid:
-            if news:
-                news.status = 0
-                db.session.add(user)
-                db.session.commit()
-            return {'code': 200, 'msg': 'The information was deleted successfully'}
-
-
-class UserStatus(Resource):
-    """
-    超级管理员封用户
-    """
-
-    @login_required
-    def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('uid')
-        args = parser.parse_args()
-        user_id = g.user_id
-        super_user = User.query.get(user_id)
-        if super_user:
-            user = User.query.get(args.get('uid'))
-            if user:
-                user.status = 1
-                db.session.commint()
-                return {'code': 200, 'msg': 'The user is blocked successfully. Procedure'}
-            return {'code': 400, 'msg': 'The user does not exist'}
-        return {'code': 503, 'msg': 'You are not super administrator and do not have this permission'}
-
-
-class NewsStatus(Resource):
-    """
-    超级管理员封文章
-    """
-
-    def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('nid')
-        args = parser.parse_args()
-        user_id = g.user_id
-        super_user = User.query.get(user_id)
-        if super_user:
-            news = News.query.get(args.get('nid'))
-            if news:
-                news.status = 1
-                db.session.commint()
-                return {'code': 200, 'msg': 'The news is blocked successfully. Procedure'}
-            return {'code': 400, 'msg': 'The news does not exist'}
-        return {'code': 503, 'msg': 'You are not super administrator and do not have this permission'}
 
 
 class CommentsLike(Resource):
@@ -366,8 +259,4 @@ api.add_resource(GetNewChannel, '/get_user_channel')
 api.add_resource(Consult, '/get_consult')
 api.add_resource(UserGiveTheThumbsUp, '/user_like_count')
 api.add_resource(CommentCRUD, '/commentCRUD')
-api.add_resource(AdminStart, '/add_admin_user')
-api.add_resource(AdminUserCRUD, '/new_put')
-api.add_resource(UserStatus, '/user_status')
-api.add_resource(NewsStatus, '/new_status')
 api.add_resource(CommentsLike, '/comments_like')
