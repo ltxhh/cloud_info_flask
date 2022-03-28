@@ -11,9 +11,16 @@ from flask_restful import Api, Resource, reqparse, marshal, fields
 from datetime import datetime, timedelta
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkcore.request import CommonRequest
+from common.utils.custom_output_json import custom_output_json
+from common.model_fields.user_fields import user_fields
 
 user_bp = Blueprint('users', __name__)
 api = Api(user_bp)
+
+
+@api.representations('application/json')
+def output_json(data, code=200, headers=None):
+    return custom_output_json(data, code, headers)
 
 
 class SMSVerificationCodeResource(Resource):
@@ -50,14 +57,6 @@ class SMSVerificationCodeResource(Resource):
         # 连接Redis, 存储验证码
         rds.setex(mobile, 200, '852963')
         return {'message': 'ok', 'data': {'mobile': mobile}, 'code': 200}
-
-
-user_fields = {
-    'uid': fields.Integer,
-    'account': fields.String,
-    'password': fields.String,
-    'mobile': fields.String
-}
 
 
 class AuthorizationResource(Resource):
@@ -279,6 +278,7 @@ class AdminUserNews(Resource):
                 db.session.add(user)
                 db.session.commit()
             return {'code': 200, 'msg': 'The information was deleted successfully'}
+        return {''}
 
 
 class UserStatus(Resource):
