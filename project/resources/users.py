@@ -1,8 +1,10 @@
 import traceback
-from common.models.models import User, db
+import logging
+from common.models.models import User, db, Channel, News
 from common.utils.jwt_utils import generate_jwt, _generate_token, refresh_token
 from common.utils.login_utils import login_required
 from common.models import rds
+from common.cache import cache
 
 from flask import Blueprint, g
 from flask_restful import Api, Resource, reqparse, marshal, fields
@@ -102,7 +104,7 @@ class AuthorizationResource(Resource):
         user.last_login = datetime.now()
         db.session.add(user)
         db.session.commit()
-        return marshal(user, user_fields)
+        return {'code': 200, 'data': marshal(user, user_fields)}
 
 
 class Login(Resource):
@@ -126,7 +128,7 @@ class Login(Resource):
         db.session.commit()
         user_id = user.uid
         token, refresh_token = _generate_token(user_id)
-        return {'code': 200, 'result': {'token': token, 'refresh_token': refresh_token}}
+        return {'code': 200, 'data': {'token': token, 'refresh_token': refresh_token}}
 
 
 class RefreshToken(Resource):
@@ -140,6 +142,7 @@ class GetUserInfo(Resource):
     """
 
     @login_required
+    @cache.cached(timeout=60)
     def get(self):
         user_id = g.user_id
         try:
@@ -182,7 +185,29 @@ class PutUserInfo(Resource):
 
         user.update(data)
         db.session.commit()
-        return marshal(user.first(), user_fields)
+        return {'code': 200, 'data': marshal(user.first(), user_fields)}
+
+
+def update_recommend_list():
+    """
+    更新推荐列表  更新到缓存中
+    :return:
+    """
+    try:
+        channel_list = Channel.query.all()
+        content = {}
+        for channel in channel_list:
+            channel_id = channel.cid
+            # 获取每个频道的资讯    排序 获取点赞最多的资讯
+            news = News.query.filter_by(channel_id=channel_id).order_by(News.good_count.desc()).first()
+            if news:
+                content.update({channel.cname: ''})
+        # 缓存  将结果缓存
+        cache.set('recommend_list', content, timeout=59 * 60)
+        logging.debug('set recommend_list success!')
+    except:
+        error = traceback.format_exc()
+        logging.error('update_recommend_list error:{}'.format(error))
 
 
 api.add_resource(SMSVerificationCodeResource, '/v1_0/sms/codes')

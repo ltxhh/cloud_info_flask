@@ -83,4 +83,28 @@ class CollectOrm(Resource):
         return {'code': 200, 'news': marshal(news, news_fields, envelope='data')}
 
 
+class GetNewList(Resource):
+    """
+    获取资讯列表
+    """
+
+    @login_required
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('page', default=1, type=int)
+        parser.add_argument('page_size', default=20, type=int)
+        args = parser.parse_args()
+        page = args.get('page')
+        page_size = args.get('page_size')
+        news = News.query.all()
+        page_size = page_size if 30 > page_size > 10 else 20
+        news.reverse()
+        count = len(news)
+        start = (page - 1) * page_size
+        end = page * page_size if count > page * page_size else page * page_size
+        news_list = news[start:end]
+        return {'code': 200, 'news': marshal(news_list, news_fields)}
+
+
 api.add_resource(CollectOrm, '/user_collect')
+api.add_resource(GetNewList, '/news_list')

@@ -40,90 +40,6 @@ comment_fields = {
 }
 
 
-class UserOrm(Resource):
-    """
-    用户的操作（增删改）
-    parser.add_argument() ：添加校验参数
-    args = parser.parse_args() ：校验
-    marshal() 返回 json 数据
-    """
-
-    def post(self):
-        parser = reqparse.RequestParser()
-        lis = ['account', 'password', 'mobile', 'email']
-        for i in lis:
-            parser.add_argument(i)
-        parser.add_argument('is_media')
-        args = parser.parse_args()
-        media = args.get('is_media')
-        if media is '':
-            is_media = 0
-        else:
-            is_media = 1
-        account = args.get('account')
-        password = args.get('password')
-        mobile = args.get('mobile')
-        email = args.get('email')
-        for info in args:
-            lens = len(args[info])
-            if lens == 0:
-                data = f'{info}'.format(info=info)
-                return [{'data': 400, 'msg': data}]
-        num = User.query.filter_by(mobile=mobile).count()
-        if num >= 1:
-            return [{'code': 400, 'msg': '该号码已注册过'}]
-        num1 = User.query.filter_by(account=account).count()
-        if num1 >= 1:
-            return [{'code': 400, 'msg': '该账号已存在'}]
-        user = User()
-        user.account = account
-        user.password = password
-        user.email = email
-        user.mobile = mobile
-        user.is_media = is_media
-        db.session.add(user)
-        db.session.commit()
-        return [marshal(user, users_fields)]
-
-    def put(self):
-        parser = reqparse.RequestParser()
-        lis = ['account', 'password', 'mobile', 'is_media', 'uid', 'email']
-        for i in lis:
-            parser.add_argument(i)
-        args = parser.parse_args()
-        for info in args:
-            lens = len(args[info])
-            if lens == 0:
-                data = f'{info}'.format(info=info)
-                return [{'data': 400, 'msg': data}]
-        media = args.get('is_media')
-        account = args.get('account')
-        password = args.get('password')
-        mobile = args.get('mobile')
-        email = args.get('email')
-        uid = args.get('uid')
-        user = User.query.filter_by(uid=uid).first()
-        user.is_media = int(media)
-        user.mobile = mobile
-        user.password = password
-        user.email = email
-        user.account = account
-        db.session.commit()
-        return [marshal(user, users_fields)]
-
-    def delete(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('uid')
-        args = parser.parse_args()
-        uid = int(args.get('uid'))
-        try:
-            user = User.query.filter_by(uid=uid).delete()
-            db.session.commit()
-            return [marshal(user, users_fields)]
-        except:
-            return [{'code': 400, 'msg': '该用户不存在'}]
-
-
 class ChannelOrm(Resource):
     """
     新闻频道的操作(增删改)
@@ -235,9 +151,6 @@ class TitleOrm(Resource):
             if lens == 0:
                 data = f'{info}'.format(info=info)
                 return [{'data': 400, 'msg': data}]
-        # num = News.query.filter_by(title=title).count()
-        # if num >= 1:
-        #     return [{'code': 400, 'msg': '该频道已存在'}]
         news = News()
         news.user_id = int(user_id)
         news.channel_id = int(channel_id)
@@ -377,7 +290,6 @@ class FuzzyEnquiry(Resource):
         return {'msg': 'ok', 'code': 200, 'data': marshal(info, users_fields, envelope='channel')}
 
 
-api.add_resource(UserOrm, '/users')
 api.add_resource(ChannelOrm, '/channel')
 api.add_resource(TitleOrm, '/news')
 api.add_resource(CommentOrm, '/comment')

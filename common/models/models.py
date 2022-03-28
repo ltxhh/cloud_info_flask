@@ -33,7 +33,7 @@ class User(db.Model):
     account = db.Column(db.String(32), doc='账号')
     email = db.Column(db.String(64), doc='邮箱')
     status = db.Column(db.Integer, default=1, doc='状态，是否可用')
-
+    Administrator = db.Column(db.Integer, default=0, doc='1为超级管理员')
     news = db.relationship('News', backref="news", uselist=False)
     comment = db.relationship('Comment', backref=db.backref('comments'), uselist=False)
     search = db.relationship('SearchHistory', backref=db.backref('searches'), uselist=False)

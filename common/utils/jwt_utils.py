@@ -45,11 +45,10 @@ def verify_jwt(token, secret=None):
 
 
 # 更新token
-def _generate_token( user_id, refresh=True):
+def _generate_token(user_id, refresh=True):
     """
     生成token
     :param user_id:
-    :return:
     """
     # 获取盐
     secret = current_app.config.get('JWT_SECRET')
