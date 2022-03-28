@@ -228,9 +228,6 @@ class CommentCRUD(Resource):
         user_id = g.user_id
 
 
-
-
-
 class CommentsLike(Resource):
     """
     评论点赞

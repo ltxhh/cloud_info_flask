@@ -49,7 +49,7 @@ class SMSVerificationCodeResource(Resource):
         print(str(response, encoding='utf-8'))
         # 连接Redis, 存储验证码
         rds.setex(mobile, 200, '852963')
-        return {'message': 'ok', 'data': {'mobile': mobile}}
+        return {'message': 'ok', 'data': {'mobile': mobile}, 'code': 200}
 
 
 user_fields = {
@@ -273,7 +273,7 @@ class AdminUserNews(Resource):
         uid = g.user_id
         user = User.query.get(uid)
         news = News.query.get(nid)
-        if (user and user.Administrator == 1) or news.user_id == uid:
+        if user.Administrator == 1:
             if news:
                 news.status = 0
                 db.session.add(user)
