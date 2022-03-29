@@ -18,7 +18,7 @@ user_bp = Blueprint('users', __name__)
 api = Api(user_bp)
 
 
-@api.representations('application/json')
+@api.representation('application/json')
 def output_json(data, code=200, headers=None):
     return custom_output_json(data, code, headers)
 

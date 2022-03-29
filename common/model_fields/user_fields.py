@@ -4,8 +4,6 @@
 # @File : user_fields.py
 # @Software : PyCharm
 
-from common.models.models import User
-
 from flask_restful import fields
 
 user_fields = {

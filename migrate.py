@@ -1,4 +1,5 @@
 from common.models.models import *
+from common.models.book import Book
 from common.models import db
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager

@@ -1,17 +1,22 @@
-from flask import Flask
+
 from common.models import db
 from common.cache import cache
-from flask_restful import Api
-from flask_cors import CORS
+from logs.logs import setup_log
 from project.resources.users import user_bp
 from project.resources.channel import text_bp
 from project.resources.userChannels import channels_bp
 from project.resources.news import news_bp
 from project.resources.collects import collect_bp
-from logs.logs import setup_log
-from flask_apscheduler import APScheduler
+from project.resources.booksCRUD import books_bp
+
 from common.utils.middlewares import jwt_authentication
 from common.cron_task.new_task import update_recommend_list
+
+from flask_apscheduler import APScheduler
+from flask_restful import Api
+from flask_cors import CORS
+from flask import Flask
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.executors.pool import ThreadPoolExecutor
 
@@ -27,6 +32,7 @@ def create_flask_app(config):
     app.register_blueprint(text_bp)
     app.register_blueprint(news_bp)
     app.register_blueprint(collect_bp)
+    app.register_blueprint(books_bp)
     app.register_blueprint(channels_bp)
     setup_log('testing')
     db.init_app(app)
@@ -44,4 +50,5 @@ def create_flask_app(config):
     # app.scheduler.add_job(func=cron_test, trigger='interval', seconds=10)
     # app.scheduler.add_job(func=GetUserAttentionNew, trigger='date')
     app.scheduler.start()
+
     return app
